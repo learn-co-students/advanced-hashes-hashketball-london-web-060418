@@ -119,73 +119,62 @@ def game_hash
 end
 
 def num_points_scored(name)
-  game_hash.each do |location, info|
-    info[:players].each do |player, stats|
-      if player == name
-        return stats[:points]
-      end
+  game_hash.each do |location, team_info|
+    if team_info[:players].include?(name)
+      return team_info[:players][name][:points]
     end
   end
 end
 
 def shoe_size(name)
-  game_hash.each do |location, info|
-    if info[:players].include?(name)
-      return info[:players][name][:shoe]
+  game_hash.each do |location, team_info|
+    if team_info[:players].include?(name)
+      return team_info[:players][name][:shoe]
     end
   end
 end
 
 def team_colors(team)
-  game_hash.each do |location, info|
-    if info[:team_name] == team
-      return info[:colors]
-    end
+  game_hash.each do |location, team_info|
+    return team_info[:colors] if team_info[:team_name] == team
   end
 end
 
 def team_names
-  game_hash.collect do |location, info|
-    info[:team_name]
+  teams = []
+  game_hash.each do |location, team_info|
+    teams << team_info[:team_name]
   end
+  teams
 end
 
 def player_numbers(team)
-  jerseynums = []
-  game_hash.each do |location, info|
-    if info[:team_name] == team
-      info[:players].each do |player, stats|
-        jerseynums << stats[:number]
+  numbers = []
+  game_hash.each do |location, team_info|
+    if team_info[:team_name] == team
+      team_info[:players].each do |player, info|
+        numbers << info[:number]
       end
     end
   end
-  jerseynums
+  numbers
 end
 
 def player_stats(name)
-  game_hash.each do|location, info|
-    if info[:players].include?(name)
-      return info[:players][name]  
-    end
+  game_hash.each do |location, team_info|
+    return team_info[:players][name] if team_info[:players].include?(name)
   end
 end
 
 def big_shoe_rebounds
-  reboundhash = {}
-  shoehash = {}
-  game_hash.each do |location, info|
-    info[:players].each do |player, stats|
-      shoehash[player] = stats[:shoe]
-      reboundhash[player] = stats[:rebounds]
+  foot_size = 0
+  big_foot = "Nobody"
+  game_hash.each do |location, team_info|
+    team_info[:players].each do |player, info|
+      big_foot = player if info[:shoe] > foot_size
     end
   end
-  foot = 0
-  bigfoot = ""
-  shoehash.each do |name, shoe|
-    if shoe > foot
-      foot = shoe
-      bigfoot = name
-    end
+  game_hash.each do |location, team_info|
+    return team_info[:players][big_foot][:rebounds] if team_info[:players].include?(big_foot)
   end
-  return reboundhash[bigfoot]
 end
